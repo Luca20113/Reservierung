@@ -1,20 +1,22 @@
-import os
-import sqlite3
-import logging
-from datetime import datetime, timezone
-
 import discord
-from discord.ext import commands
-from dotenv import load_dotenv
+from discord.ext import commands, tasks
+import os
+import asyncio
+import json
+from datetime import datetime, timedelta
 
-load_dotenv()
-logging.basicConfig(level=logging.INFO)
+TOKEN = os.getenv("TOKEN")
 
-TOKEN = os.getenv("DISCORD_TOKEN")
-COMMAND_CHANNEL_ID = int(os.getenv("COMMAND_CHANNEL_ID", "0"))
-RESERVATION_CHANNEL_ID = int(os.getenv("RESERVATION_CHANNEL_ID", "0"))
-PREFIX = os.getenv("COMMAND_PREFIX", "!")
-DB_PATH = os.getenv("DATABASE_PATH", "reservierungen.sqlite3")
+if not TOKEN:
+    print("❌ TOKEN fehlt!")
+    exit()
+
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = True
+intents.reactions = True
+
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 CATEGORIES = ["Flag", "Doppelhalter", "Pyro", "Drummer"]
 CATEGORY_EMOJI = {
